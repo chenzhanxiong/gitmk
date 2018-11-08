@@ -1,19 +1,17 @@
 <template>
-	<div class="setup-box">
-		<div class="row-box">
-			<div class="setup-info" v-for="(list,i) in datalist">
-				<h3 class="setup-title">{{list.title}}</h3>
-				<ul>
-					<li v-for="(li,i) in list.list">
-						<span>{{li.name}}</span>
-						<span>
-							<span v-if="li.switchs" class="eam-switch" :class="{active:li.state}" @click="li.state = !li.state"></span>
-							<span>{{li.value}}</span>
-							<i v-if="li.event" class="iconfont icon-arr"></i>
-						</span>
-					</li>
-				</ul>
-			</div>
+	<div class="setup-box row-box">
+		<div class="setup-info" v-for="(list,i) in datalist">
+			<h3 class="setup-title">{{list.title}}</h3>
+			<ul>
+				<li @click="li.event()" v-for="(li,i) in list.list">
+					<span>{{li.name}}</span>
+					<span>
+						<span v-if="li.switchs" class="eam-switch" :class="{active:li.state}" @click.stop="li.state = !li.state"></span>
+						<span>{{li.value}}</span>
+						<i v-if="li.event" class="iconfont icon-arr"></i>
+					</span>
+				</li>
+			</ul>
 		</div>
 	</div>
 </template>
@@ -40,7 +38,10 @@
 					{
 						title:'系统信息',
 						list:[
-							{name:'关于',value:'',event:()=>{}},
+							{name:'关于',value:'',event:()=>{
+								console.log(window)
+								checkUpdate();
+							}},
 							{name:'产品与服务修改意见',value:'',event:()=>{}},
 						]
 					},
@@ -49,14 +50,18 @@
 						list:[
 							{name:'关于',value:'',switchs:true,state:false},
 							{name:'自动升级',value:'',switchs:true,state:false},
-							{name:'清除本地缓存',value:'80.3MB',event:()=>{}},
+							{name:'清除本地缓存',value:'0.2MB',event:()=>{}},
 							{name:'修改密码',value:'',event:()=>{}},
+							{name:'切换账号',value:'',event:()=>{
+								this.$store.commit('del_token');
+								this.$router.replace('/login');
+							}},
 						]
 					}
 				]
 			}
 		},
-		mounted(){
+		activated(){
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
 		}

@@ -1,30 +1,35 @@
 <template>
-	<router-link class="equip-list" :class="{alarm:listdata.state}" :to="listdata.href">
+	<div class="equip-list border-bottom" :class="{alarm:listdata.untreatedNum > 0 || listdata.reportNum > 0}" @click="listClick">
 		<span class="left-icon"><i class="iconfont icon-donghuanshebeiguanli"></i></span>
 		<div class="centent-page">
-			<p>{{listdata.name}}</p>
+			<p>{{listdata.equName}}</p>
 			<i class="iconfont icon-location"></i>
 		</div>
 		<ul class="right-state">
 			<li>
 				<span class="sta-name">今日工单</span>
-				<span class="sta-data">{{listdata.statelist[0]}}</span>
+				<span class="sta-data">{{listdata.woNum}}</span>
 			</li>
 			<li>
 				<span class="sta-name">未处理工单</span>
-				<span class="sta-data red">{{listdata.statelist[1]}}</span>
+				<span class="sta-data" :class="{red:listdata.untreatedNum>0}">{{listdata.untreatedNum}}</span>
 			</li>
 			<li>
 				<span class="sta-name">异常上报</span>
-				<span class="sta-data red">{{listdata.statelist[2]}}</span>
+				<span class="sta-data" :class="{red:listdata.reportNum>0}">{{listdata.reportNum}}</span>
 			</li>
 		</ul>
-	</router-link>
+	</div>
 </template>
 
 <script>
 	export default {
-		props:['listdata']
+		props:['listdata'],
+		methods:{
+			listClick(){
+				this.$router.push({path:'/equiplist',query:{...this.listdata}})
+			}
+		}
 	}
 </script>
 
@@ -33,8 +38,6 @@
 		display: block;
 		width: 100%;
 		height: 1.26rem;
-		border-bottom: 0.01rem solid #dedee0;
-		padding: 0 0.2rem;
 		position: relative;
 	}
 	.left-icon{
@@ -45,6 +48,7 @@
 		border-radius: 50%;
 		position: absolute;
 		top: 50%;
+		left: 0.2rem;
 		transform: translate(0,-50%);
 		text-align: center;
 	}
@@ -62,6 +66,10 @@
 	.centent-page p{
 		font-size: 0.25rem;
 		line-height: 0.45rem;
+		width: 4.4rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 	.centent-page i{
 		line-height: 0.4rem;

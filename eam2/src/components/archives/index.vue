@@ -1,6 +1,6 @@
 <template>
 	<div class="spareparts-box">
-		<div class="row-box">
+		<div class="row-box" v-if="show">
 			<div class="archives-title">
 				<span v-for="(list,i) in archivesData.title" :key="i">{{list}}</span>
 			</div>
@@ -13,21 +13,23 @@
 				</swiper>
 			</div>
 		</div>
+		<not-found v-if="!show" kaifazhong="true"></not-found>
 	</div>
 </template>
 
 <script>
-	import {mapState} from 'vuex';
+	import {mapState} from 'vuex'
+	import notFound from '@/components/notFound'
 	import SpareMap from '@/components/archives/spareMap'
 	import SpareList from '@/components/archives/spareList'
 	import SpareP from '@/components/archives/spareP'
 	import {swiper,swiperSlide} from 'vue-awesome-swiper'
-	import 'swiper/dist/css/swiper.css'
 	export default{
-		components:{ SpareMap,SpareList,SpareP,swiper,swiperSlide },
+		components:{ SpareMap,SpareList,SpareP,swiper,swiperSlide,notFound },
 		data(){
 			const self = this;
 			return{
+				show:true,
 				title:['零件图','零件列表'],
 				headData:[
 					{
@@ -66,8 +68,11 @@
 		computed:{
 			...mapState(['archivesData']),
 		},
-		mounted(){
+		activated(){
 			this.$store.state.heads.show = 'archivesShow';
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 		}
 	}
 </script>

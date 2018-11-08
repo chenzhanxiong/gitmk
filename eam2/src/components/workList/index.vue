@@ -1,15 +1,17 @@
 <template>
 	<div class="workList-box row-box" v-cloak>
-		<mt-loadmore :top-method="loadTop" :auto-fill="autofill" ref="loadmore">
+		<mt-loadmore v-show="datalist.length > 0" :top-method="loadTop" :auto-fill="autofill" ref="loadmore">
 			<div class="workList-ul">
 				<worklist-list v-for="(list,i) in datalist" :key="i" :listdata="list"></worklist-list>
 			</div>
 		</mt-loadmore>
+		<not-found v-show="datalist.length <= 0" not="not"></not-found>
 	</div>
 </template>
 
 <script>
 	import worklistList from '@/components/assembly/worklistList'
+	import notFound from '@/components/notFound'
 	export default {
 		name:'workList',
 		data(){
@@ -45,16 +47,16 @@
 				datalist:[]
 			}
 		},
-		components:{ worklistList },
+		components:{ worklistList,notFound },
 		methods:{
 			loadTop(){
 				this.getWoList();
 			},
 			getWoList(){
 				this.$store.commit('showLoading')
-				this.$axios.get('/wo/findList',{
+				this.$axios.get(this.$root.URL+'eom/api/wo/findList',{
 					params:{
-						equipmentId:'',
+						equipmentId:this.$route.query.id || ''
 					}
 				}).then((res) =>{
 					this.$store.commit('hideLoading')
@@ -66,19 +68,41 @@
 						this.datalist = data.items;
 						this.$refs.loadmore.onTopLoaded();
 					}else{
-						this.$MessageBox('提示',data.errorMsg)
+						this.$MessageBox('提示','获取数据失败！')
 					}
-				}).catch((error) => {
-					this.$store.commit('hideLoading');
-					this.$MessageBox('提示','请求失败')
 				})
+			},
+			headfn(){
+				this.$store.state.heads.show = true;
+				this.$store.state.heads.headData = this.headData;
 			}
 		},
-		mounted(){
-			this.$store.state.heads.show = true;
-			this.$store.state.heads.headData = this.headData;
-			this.getwolist();
-		}
+		beforeRouteEnter(to, from, next){
+			if(from.name == 'Home' || from.name == 'Equiplist'){
+				to.meta.isUseCache = false;
+				
+			}else{
+				to.meta.isUseCache = true;
+			}
+			next(vm => {
+				if(from.name == 'Equiplist'){
+					vm.headData[1].html = '工单（'+vm.$route.query.name+'）'
+				}else{
+					vm.headData[1].html = '工单'
+				}
+				vm.headfn();
+			})
+		},
+		beforeRouteLeave(to,from,next){
+			to.meta.isUseCache = false;
+			next()
+		},
+		activated(){
+			this.getWoList();
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
+		},
 	}
 </script>
 

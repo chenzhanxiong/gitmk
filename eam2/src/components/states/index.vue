@@ -1,15 +1,19 @@
 <template>
-	<div class="states-box">
-		<tables :datalist="datalist"></tables>
+	<div class="states-box row-box">
+		<tables :datalist="datalist"  v-if="show"></tables>
+		<not-found v-if="!show" kaifazhong="true"></not-found>
 	</div>
+	
 </template>
 
 <script>
 	import Tables from '@/components/states/tables'
+	import notFound from '@/components/notFound'
 	export default{
-		components:{Tables},
+		components:{Tables,notFound},
 		data(){
 			return{
+				show:true,
 				datalist:{
 					ahead:['序号','部位','测量值','趋势','异常上报'],
 					abody:[
@@ -21,7 +25,8 @@
 				}
 			}
 		},
-		mounted(){
+		activated(){
+			//this.$router.push({name:'notFound',params:{type:'kaifazhong'}})
 			this.$store.state.heads.show = 'statesShow';
 			//this.$store.state.heads.headData = this.headData;
 		}

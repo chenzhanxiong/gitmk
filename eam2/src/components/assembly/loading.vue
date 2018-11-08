@@ -1,7 +1,11 @@
 <template>
-	<div class="loading-box">
+	<div class="loading-box" :class="{iphonex:$root.iphonex}">
 		<div class="loading">
-			<i></i>
+			<div style="width:1.5rem;height:1.5rem">
+					<svg class="lds-gears" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><g transform="translate(50 50)"> <g transform="translate(-19 -19) scale(0.6)"> <g transform="rotate(105.934)">
+			<animateTransform attributeName="transform" type="rotate" values="0;360" keyTimes="0;1" dur="2.6s" begin="0s" repeatCount="indefinite"></animateTransform><path d="M37.43995192304605 -6.5 L47.43995192304605 -6.5 L47.43995192304605 6.5 L37.43995192304605 6.5 A38 38 0 0 1 31.070237969796747 21.87784981437163 L31.070237969796747 21.87784981437163 L38.141305781662226 28.948917626237105 L28.948917626237105 38.14130578166222 L21.87784981437163 31.070237969796743 A38 38 0 0 1 6.5 37.43995192304605 L6.5 37.43995192304605 L6.500000000000001 47.43995192304605 L-6.499999999999995 47.43995192304606 L-6.499999999999996 37.43995192304606 A38 38 0 0 1 -21.877849814371626 31.070237969796747 L-21.877849814371626 31.070237969796747 L-28.9489176262371 38.141305781662226 L-38.14130578166222 28.948917626237105 L-31.070237969796743 21.87784981437163 A38 38 0 0 1 -37.43995192304605 6.5000000000000036 L-37.43995192304605 6.5000000000000036 L-47.43995192304605 6.500000000000004 L-47.43995192304606 -6.499999999999993 L-37.43995192304606 -6.499999999999994 A38 38 0 0 1 -31.070237969796747 -21.877849814371626 L-31.070237969796747 -21.877849814371626 L-38.141305781662226 -28.9489176262371 L-28.94891762623711 -38.14130578166222 L-21.877849814371633 -31.070237969796743 A38 38 0 0 1 -6.500000000000005 -37.43995192304605 L-6.500000000000005 -37.43995192304605 L-6.500000000000007 -47.43995192304605 L6.49999999999999 -47.43995192304606 L6.499999999999992 -37.43995192304606 A38 38 0 0 1 21.877849814371622 -31.07023796979675 L21.877849814371622 -31.07023796979675 L28.948917626237098 -38.141305781662226 L38.14130578166221 -28.94891762623711 L31.07023796979674 -21.877849814371633 A38 38 0 0 1 37.43995192304605 -6.500000000000007 M0 -23A23 23 0 1 0 0 23 A23 23 0 1 0 0 -23" fill="#00B294"></path></g></g> <g transform="translate(19 19) scale(0.6)"> <g transform="rotate(234.566)">
+			<animateTransform attributeName="transform" type="rotate" values="360;0" keyTimes="0;1" dur="2.6s" begin="-0.1625s" repeatCount="indefinite"></animateTransform><path d="M37.43995192304605 -6.5 L47.43995192304605 -6.5 L47.43995192304605 6.5 L37.43995192304605 6.5 A38 38 0 0 1 31.070237969796747 21.87784981437163 L31.070237969796747 21.87784981437163 L38.141305781662226 28.948917626237105 L28.948917626237105 38.14130578166222 L21.87784981437163 31.070237969796743 A38 38 0 0 1 6.5 37.43995192304605 L6.5 37.43995192304605 L6.500000000000001 47.43995192304605 L-6.499999999999995 47.43995192304606 L-6.499999999999996 37.43995192304606 A38 38 0 0 1 -21.877849814371626 31.070237969796747 L-21.877849814371626 31.070237969796747 L-28.9489176262371 38.141305781662226 L-38.14130578166222 28.948917626237105 L-31.070237969796743 21.87784981437163 A38 38 0 0 1 -37.43995192304605 6.5000000000000036 L-37.43995192304605 6.5000000000000036 L-47.43995192304605 6.500000000000004 L-47.43995192304606 -6.499999999999993 L-37.43995192304606 -6.499999999999994 A38 38 0 0 1 -31.070237969796747 -21.877849814371626 L-31.070237969796747 -21.877849814371626 L-38.141305781662226 -28.9489176262371 L-28.94891762623711 -38.14130578166222 L-21.877849814371633 -31.070237969796743 A38 38 0 0 1 -6.500000000000005 -37.43995192304605 L-6.500000000000005 -37.43995192304605 L-6.500000000000007 -47.43995192304605 L6.49999999999999 -47.43995192304606 L6.499999999999992 -37.43995192304606 A38 38 0 0 1 21.877849814371622 -31.07023796979675 L21.877849814371622 -31.07023796979675 L28.948917626237098 -38.141305781662226 L38.14130578166221 -28.94891762623711 L31.07023796979674 -21.877849814371633 A38 38 0 0 1 37.43995192304605 -6.500000000000007 M0 -23A23 23 0 1 0 0 23 A23 23 0 1 0 0 -23" fill="#999"></path></g></g></g></svg>
+			</div>
 			<p>{{mes}}</p>
 		</div>
 	</div>
@@ -18,9 +22,14 @@
 	.loading-box{
 		position: fixed;
 		width: 100%;
-		height: 100%;
+		bottom:0;
 		z-index: 9999;
-		top: 0;
+		top: 1.44rem;
+		background: rgba(255,255,255,0.6);
+		transition: all 500ms;
+	}
+	.loading-box.iphonex{
+		top: 1.66rem;
 	}
 	.loading{
 		position: absolute;
@@ -33,135 +42,5 @@
 		padding: 0.4rem 0.4rem;
 		border-radius: 0.3rem;
 		font-size: 0.26rem;
-	}
-	.loading i{
-		display:block;
-		color: #00B393;
-		height: 1.2rem;
-		/*animation:run 3s infinite linear;*/
-	}
-	/*.loading i:before,.loading i:after{
-		content: '';
-		display: inline-block;
-		width: 0;
-		height: 0;
-		border-radius: 50%;
-		background: #00B393;
-		text-align: center;
-	}*/
-	.loading i:before{
-		content: '';
-		/*animation:be 3s infinite linear;*/
-		display: block;
-		border: 0.1rem solid rgba(0, 229, 183, 0.9);
-	  opacity: .9;
-	  border-right-color: transparent;
-	  border-left-color: transparent;
-	  width: 1rem;
-	  height: 1rem;
-	  margin: 0 auto;
-	  border-radius: 50%;
-	  -webkit-box-shadow: 0 0 0.7rem rgba(0, 76, 61, 0.9);
-	  -moz-box-shadow: 0 0 0.7rem rgba(0, 76, 61, 0.9);
-	  box-shadow: 0 0 0.7rem rgba(0, 76, 61, 0.9);
-	  -webkit-animation: spin-pulse 1s linear infinite normal;
-	  -moz-animation: spin-pulse 1s linear infinite normal;
-	  -ms-animation: spin-pulse 1s linear infinite normal;
-	  animation: spin-pulse 1s linear infinite normal;
-	  -webkit-animation-delay: 0;
-	  -moz-animation-delay: 0;
-	  -o-animation-delay: 0;
-	  animation-delay: 0;
-	}
-	.loading i:after{
-		content: '';
-		/*animation:af 3s infinite linear;*/
-		display: block;
-		border: 0.1rem solid rgba(0, 229, 183, 0.9);
-	  opacity: .9;
-	  border-left-color: transparent;
-	  border-right-color: transparent;
-	  border-radius: 50%;
-	  -webkit-box-shadow: 0 0 0.3rem rgba(0, 76, 61, 0.9);
-	  -moz-box-shadow: 0 0 0.3rem rgba(0, 76, 61, 0.9);
-	  box-shadow: 0 0 0.3rem rgba(0, 76, 61, 0.9);
-	  width: 0.6rem;
-	  height: 0.6rem;
-	  position: relative;
-	  top: -1rem;
-	  margin: 0 auto;
-	  -webkit-animation: spin-right 1s linear infinite normal;
-	  -moz-animation: spin-right 1s linear infinite normal;
-	  -ms-animation: spin-right 1s linear infinite normal;
-	  animation: spin-right 1s linear infinite normal;
-	  -webkit-animation-delay: 0;
-	  -moz-animation-delay: 0;
-	  -o-animation-delay: 0;
-	  animation-delay: 0;
-	}
-	@keyframes spin-pulse {
-	  from {
-	    transform: rotate(160deg);
-	    opacity: 0;
-	    box-shadow: 0 0 1px rgba(0, 61, 76, 0.9);
-	  }
-	  50% {
-	    transform: rotate(145deg);
-	    opacity: 1;
-	  }
-	  to {
-	    transform: rotate(-320deg);
-	    opacity: 0;
-	  }
-	}
-	@keyframes spin-right {
-	  from {
-	    transform: rotate(0deg);
-	    opacity: 0.2;
-	  }
-	  50% {
-	    transform: rotate(180deg);
-	    opacity: 1.0;
-	  }
-	  to {
-	    transform: rotate(360deg);
-	    opacity: 0.2;
-	  }
-	}
-	@keyframes be{
-	    0%{
-	        width: 0.2rem;
-	        height: 0.2rem;
-	    }
-	    50%{
-	    		width: 0.6rem;
-	    		height: 0.6rem;
-	    }
-	    100%{
-	        width: 0.2rem;
-	    		height: 0.2rem;
-	    }
-	}
-	@keyframes af{
-	    0%{
-	        width: 0.6rem;
-	        height: 0.6rem;
-	    }
-	    50%{
-	    		width: 0.2rem;
-	    		height: 0.2rem;
-	    }
-	    100%{
-	        width: 0.6rem;
-	    		height: 0.6rem;
-	    }
-	}
-	@keyframes run{
-	    from{
-	        transform: rotate(0deg);
-	    }
-	    to{
-	        transform: rotate(360deg);
-	    }
 	}
 </style>

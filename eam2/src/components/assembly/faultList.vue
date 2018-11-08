@@ -1,19 +1,22 @@
 <template>
-	<span class="reqair-list"">
+	<span class="reqair-list border-bottom" @click="$emit('event',listdata)">
 		<span class="left-icon"><i class="iconfont icon-guzhangkuaicha"></i></span>
-		<div class="content-page">
-			<p>{{listdata.name}}</p>
-			<p>{{listdata.info}}</p>
+		<div class="content-page" v-if="!failureTxt">
+			<p>{{listdata.faultName}}</p>
+			<p>{{listdata.faultReason}}</p>
 		</div>
-		<div class="right-arr">
-			<p>发生概率：{{listdata.probability}}</p>
+		<div class="content-page" v-if="failureTxt">
+			<p>{{listdata.text}}</p>
+		</div>
+		<div class="right-arr" v-if="!failureTxt">
+			<p>发生次数：{{listdata.faultCount}}</p>
 		</div>
 	</span>
 </template>
 
 <script>
 	export default {
-		props:['listdata']
+		props:['listdata','failureTxt']
 	}
 </script>
 
@@ -22,7 +25,7 @@
 		display: block;
 		width: 100%;
 		height: 1.28rem;
-		border-bottom: 0.01rem solid #dedee0;
+		border-bottom: 0.02rem solid #dedee0;
 		padding: 0 0.2rem;
 		position: relative;
 		cursor: pointer;
@@ -65,6 +68,7 @@
 	.reqair-list .right-arr{
 		position: absolute;
 		right: 0.2rem;
+		width: auto;
 		top: 58%;
 		text-align: center;
 		color: #999;

@@ -4,6 +4,9 @@
 			<li v-for="(list,i) in listdata" :key="i">{{list.name}}：{{list.value}}</li>
 			<li v-if="(listdata.length)%2 != 0"></li>
 		</ul>
+		<ul class="table100" v-if="dataL">
+			<li v-for="(list,i) in dataL" :key="i">{{list.name}}：{{list.value}}</li>
+		</ul>
 	</div>
 </template>
 
@@ -14,7 +17,7 @@
 				
 			}
 		},
-		props:['listdata']
+		props:['listdata','dataL']
 	}
 </script>
 
@@ -30,7 +33,7 @@
 	.eam-tablec ul li{
 		float: left;
 		width: 50%;
-		border:0.01rem solid #DEDEDE;
+		border:0.02rem solid #DEDEDE;
 		border-top-width: 0;
 		border-left-width: 0;
 		line-height: 0.65rem;
@@ -42,5 +45,9 @@
 	}
 	.eam-tablec ul li:nth-child(even){
 		border-right-width: 0;
+	}
+	.table100 li{
+		width: 100% !important;
+		border-right-width: 0 !important;
 	}
 </style>

@@ -1,6 +1,6 @@
 <template>
 	<div class="earlywarning-box row-box">
-		<ul class="earlywarning-ul">
+		<ul class="earlywarning-ul"  v-if="show">
 			<li v-for="(list,i) in datalist" :key="i" @click="$router.push('/earlyContent')">
 				<span class="left-icon-c">
 					<i class="iconfont icon-baojing"></i>
@@ -17,14 +17,17 @@
 				</span>
 			</li>
 		</ul>
+		<not-found v-if="!show" kaifazhong="true"></not-found>
 	</div>
 </template>
 
 <script>
-	import '@/static/liststyle.css'
+	import notFound from '@/components/notFound'
 	export default{
+		components:{notFound},
 		data(){
 			return{
+				show:true,
 				headData:[
 					{
 						show:true,
@@ -47,9 +50,12 @@
 				]
 			}
 		},
-		mounted(){
+		activated(){
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 		}
 	}
 </script>

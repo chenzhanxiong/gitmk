@@ -1,5 +1,5 @@
 <template>
-	<div class="home-box">
+	<div class="home-box" :class="{iphonex:$root.iphonex}">
 		<h1 v-html="$store.state.title"></h1>
 		<span class="setUp-btn" @click="$router.push('/setUp')">
 			<i class="iconfont icon-shezhi"></i>
@@ -18,6 +18,10 @@
 				<router-link to="/abnormallyReport"><i class="iconfont icon-paizhaoxiangjixianxing"></i><span>异常上报</span></router-link>
 			</li>
 		</ul>
+		<div class="home-footer" @click="$router.push({path:'/scanCode',query:{redirect:'/equiplist'}})">
+			<i class="iconfont icon-saomiao"></i>
+			开始扫描
+		</div>
 	</div>
 </template>
 
@@ -25,18 +29,32 @@
 	export default {
 	  	name: 'home',
 	  	methods:{
-	  		getdata(){
-	  			this.$axios.put('/api/demo/update/4028812e64fde78e0164ffde106d0002',{
-	  				name:'11111',
-	  				age:'3',
-	  			}).then((res) =>{
-	  				console.log(res)
-	  			})
-	  		}
 	  	},
-	  	mounted(){
-	  		//this.getdata();
-			this.$store.state.heads.show = false;
+		beforeRouteEnter(to, from, next){
+			to.meta.isUseCache = false;
+			next(vm => {
+				vm.$store.state.heads.show = false;
+			})
+		},
+	  	activated(){
+			var first = null;
+			mui.back = function() {
+			//首次按键，提示 再按一次退出应用
+				if (!first) {
+					first = new Date().getTime();//记录第一次按下回退键的时间
+					mui.toast('再按一次退出应用');//给出提示
+					
+					setTimeout(function() {//1s中后清除
+						first = null;
+					}, 1000);
+				} else {
+					if (new Date().getTime() - first < 1000) {//如果两次按下的时间小于1s，
+						plus.runtime.quit();//那么就退出app
+			
+					} 
+				}
+			};
+
 		}
 	}
 </script>
@@ -45,10 +63,13 @@
 	.home-box{
 		width: 100%;
 		height: 100%;
-		padding: 0.78rem 0.3rem;
+		padding: 0.58rem 0.3rem;
 		position: relative;
-		background: url(../static/images/homebg.png) no-repeat center;
-		background-size: 100% 100%;
+		background: url(../static/images/homebg.png) no-repeat center top;
+		background-size: 100%;
+	}
+	.home-box.iphonex{
+		padding-top: 0.8rem;
 	}
 	.home-box h1{
 		font-size: 0.36rem;
@@ -104,5 +125,29 @@
 	.home-box li a span{
 		display: block;
 		margin: 0 auto;
+	}
+	.home-footer{
+		position: fixed;
+		height: 1.1rem;
+		left: 0;
+		right: 0;
+		background: #384e4a;
+		color: #fff;
+		bottom: 0;
+		font-size: 0.32rem;
+		text-align: center;
+		line-height: 1.1rem;
+	}
+	.home-footer:before{
+		content: '';
+		width: 0;
+		height: 100%;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	.home-footer i{
+		display: inline-block;
+		vertical-align: middle;
+		font-size: 0.42rem;
 	}
 </style>

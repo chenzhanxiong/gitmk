@@ -1,5 +1,5 @@
 <template>
-	<div class="earlyContent-box">
+	<div class="earlyContent-box row-box">
 		<div>
 			<routine-list v-for="(list,i) in datalist" :key="'a'+i" :listdata="list"></routine-list>
 		</div>
@@ -35,9 +35,12 @@
 				]
 			}
 		},
-		mounted(){
+		activated(){
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 		}
 	}
 </script>

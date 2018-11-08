@@ -1,30 +1,105 @@
 <template>
 	<div class="photolist-box">
-		<span class="routine-img-li" v-for="(list,i) in listdata" :key="i" @touchstart="showDeleteButton(list)" @touchend="clearLoop"><i v-if="list.delete1" @click="delete1(i)" class="delete iconfont icon-guanbi"></i><img :src="list.src"/></span>
-		<span class="routine-img-li"><i class="add iconfont icon-tianjia" @click="jump"></i></span>
+		<span v-if="listdata.length > 0" class="routine-img-li" :class="{delete1:deleteVisible}" v-for="(list,i) in listdata" :key="i" @touchstart="function(){if(!isFinish) showDeleteButton()}" @touchend="clearLoop">
+			<i v-if="deleteVisible" @click="delete1(list,i)" class="delete iconfont icon-guanbi"></i>
+			<img @click="imagebig(list)" :src="imgUrlBase+list.path"/>
+		</span>
+		<span class="routine-img-li" v-if="!isFinish"><i class="add iconfont icon-tianjia" @click="jump"></i></span>
+		<mt-popup v-model="popupVisible" popup-transition="popup-fade">
+			<img v-if="bigSrc" @click="popupVisible = false;bigSrc=''" class="bigimg" :src="imgUrlBase+bigSrc">
+		</mt-popup>
 	</div>
 </template>
 
 <script>
 	export default{
-		props:['listdata'],
+		props:['isFinish'],
+		data(){
+			return{
+				imgUrlBase:this.$store.state.devHost+'/files/',
+				popupVisible:false,
+				deleteVisible:false,
+				photoQuery:false,
+				listdata:[],
+				imgBindId:'',
+				bigSrc:'',
+			}
+		},
 		methods:{
-			showDeleteButton(list){
+			showDeleteButton(){
 				clearInterval(this.Loop);//再次清空定时器，防止重复注册定时器
 			    this.Loop=setTimeout(() => {
-			        list.delete1 = true;
-			        console.log(list)
-			    },1000);
+			        this.deleteVisible = true;
+			    },800);
 			},
 			clearLoop() {
 			    clearInterval(this.Loop);
 			},
-			delete1(index){
-				this.listdata.splice(index,1);
+			delete1(list,index){
+				if(!this.photoQuery){
+					this.listdata.splice(index,1);
+					return false;
+				}
+				this.$axios.delete(this.$root.URL+'eom/api/photo/deleteFileSave/'+list.woId,).then(res => {
+					let d = res.data;
+					if(!d.result){
+						this.listdata.splice(index,1);
+						this.$Toast('照片删除成功！')
+					}else{
+						this.$MessageBox('提示','照片删除失败！')
+					}
+				})
 			},
 			jump(){
-				this.$router.replace('/camera')
+				this.$router.push({
+					path:'/camera',
+					query:{
+						redirect: this.$router.currentRoute.fullPath,
+						imgBindId:this.imgBindId
+					}
+				})
+			},
+			imagebig(list){
+				this.bigSrc = list.path;
+				this.popupVisible = true;
+			},
+			
+			getPhoto(){//获取照片
+				this.$axios.get(this.$root.URL+'eom/api/photo/query',{
+					params:{
+						imgBindId:this.imgBindId
+					}
+				}).then(res => {
+					let d = res.data;
+					if(!d.result){
+						this.listdata = d.item;
+						this.$store.state.imgBindId[this.imgBindId] = d.item
+					}
+				})
+			},
+			displayImg(imgBindId){
+				this.imgBindId = imgBindId;
+				this.listdata = [];
+				let d = this.$store.state.imgBindId[this.imgBindId]
+				if(d){
+					this.listdata = d;
+				}else{
+					this.photoQuery = true;
+					this.getPhoto()
+				}
+			},
+			disAbnImg(){
+				this.imgBindId = 'abnImgId';
+				this.listdata = [];
+				this.listdata = this.$store.state.abnImgId;
 			}
+		},
+		mounted(){
+			document.addEventListener('click',(e) => {
+				if(e.target.className!='routine-img-li'){
+						this.deleteVisible=false;
+				}
+			})
 		}
 	}
 </script>
@@ -39,19 +114,37 @@
 		width: 1rem;
 		height: 1rem;
 		margin: 0.15rem;
+		overflow: hidden;
 		position: relative;
+	}
+	.photolist-box .routine-img-li.delete1{
+		overflow: visible;
+		top: -0.15rem;
 	}
 	.photolist-box .routine-img-li>img{
-		width: 100%;
-		height: 100%;
+		width: 1rem;
+		height: 1rem;
+		display: inline-block;
+	}
+	.photolist-box .mint-popup{
+		border-radius: 0;
+	}
+	.bigimg{
+		display: block;
+		width: 6rem;
+	}
+	.photolist-box .routine-img-li>.big{
+		width: 80%;
+		height: auto;
+		left: 10%;
+		top: 1.44rem;
 	}
 	.photolist-box .routine-img-li>i.add{
-		font-size: 1rem;
+		font-size: 0.95rem;
+		display: block;
 		position: relative;
-		top: -0.05rem;
-		color: #DEDEE0;
 		font-weight: normal;
-		color: #DEDEDE;
+		color: #ccc;
 	}
 	.photolist-box .routine-img-li>i.delete{
 		position: absolute;
@@ -60,5 +153,8 @@
 		color: #f66;
 		font-size: 0.35rem;
 		z-index: 1;
+	}
+	.photolist-box .mint-popup{
+		position: fixed;
 	}
 </style>

@@ -1,15 +1,32 @@
 <template>
 	<div class="add-replace-box row-box">
 		<ul class="add-replace-ul">
-			<li v-for="(list,i) in listdata" :key="i" @click="$router.push('/addSparepart')">
-				<span>{{list.name}}</span>
+			<li @click="assPhotosHref">
+				<span>添加部位</span>
 				<div class="add-replace-page">
-					<span v-if="!list.listshow">{{list.value}}</span>
-					<ul class="replace-page-child" v-if="list.listshow" @click.stop>
-						<li v-for="(li,i) in list.list" :key="i">
-							<span>{{li.name}}</span>
+					<span>{{$route.query.positionName}}</span>
+					<ul class="replace-page-child" @click.stop v-if="bwlist.length > 0">
+						<li v-for="(li,i) in bwlist" :key="i">
+							<span>{{li.text}}</span>
 							<span>
-								<i :class="{active:li.num > 0}" @click="li.num > 0 && li.num--">-</i>
+								<i :class="{active:li.num > 1}" @click="numReduce(li,i,'bwlist')">-</i>
+								<input type="number" v-model="li.num" disabled/>
+								<i class="active" @click="li.num++">+</i>
+							</span>
+						</li>
+					</ul>
+				</div>
+				<i class="iconfont icon-arr"></i>
+			</li>
+			<li @click="addSparepart">
+				<span>添加备件</span>
+				<div class="add-replace-page">
+					<span></span>
+					<ul class="replace-page-child" @click.stop v-if="bjlist.length > 0">
+						<li v-for="(li,i) in bjlist" :key="i">
+							<span>{{li.text}}</span>
+							<span>
+								<i :class="{active:li.num > 1}" @click="numReduce(li,i,'bjlist')">-</i>
 								<input type="number" v-model="li.num" disabled/>
 								<i class="active" @click="li.num++">+</i>
 							</span>
@@ -32,6 +49,7 @@
 					{
 						show:true,
 						icon:'icon-fanhui',
+						close:true,
 						event:() => {
 							this.$router.back(-1);
 						}
@@ -43,37 +61,84 @@
 					},
 					{
 						show:true,
-						html:'保存'
+						html:'保存',
+						event:()=>{
+							this.postSaveReplaceParts()
+						}
 					}
 				],
-				listdata:[
-					{
-						listshow:false,
-						name:'添加部位',
-						value:'部位1',
-						list:[
-							{name:'部位名称1',num:0},
-							{name:'部位名称1',num:0},
-							{name:'部位名称1',num:0},
-							{name:'部位名称1',num:0},
-						]
-					},
-					{
-						listshow:false,
-						name:'添加备件',
-						value:'备件1',
-						list:[
-							{name:'备件名称1',num:0},
-							{name:'备件名称1',num:0},
-							{name:'备件名称1',num:0},
-							{name:'备件名称1',num:0},
-						]
-					}
-				]
+				bwlist:[],
+				bjlist:[]
 				
 			}
 		},
-		mounted(){
+		methods:{
+			assPhotosHref(){
+				this.$router.push({path:'/assPhotos',query:{...this.$route.query}})
+			},
+			addSparepart(){
+				this.$router.push({path:'/addSparepart',query:{...this.$route.query,item:this.bjlist}})
+			},
+			numReduce(list,index,arr){
+				if(list.num > 1){
+					list.num --;
+				}else{
+					this.$MessageBox.confirm('确定删除？').then(action => {
+						this[arr].splice(index,1)
+					})
+				}
+			},
+			postSaveReplaceParts(){//确认换件信息
+				let arr = [];
+				arr = arr.concat(this.bwlist);
+				arr = arr.concat(this.bjlist);
+				arr.forEach(e => {
+					e.fAwoId = this.$route.query.id;
+					e.equKeyId = this.$route.query.equKeyId;
+					e.postionId = this.$route.query.postionId;
+					e.partId = e.code;
+					e.partNum = e.num;
+				})
+				this.$store.commit('showLoading')
+				this.$axios.post(this.$root.URL+'eom/api/common/saveReplaceParts',{
+					list:arr
+				}).then(res => {
+					this.$store.commit('hideLoading')
+					let d = res.data;
+					if(!d.result){
+						this.$Toast({message:'提交成功!'});
+						this.$router.back(-1)
+					}else{
+						this.$MessageBox('提示','提交失败!');
+					}
+				})
+			}
+		},
+		beforeRouteEnter(to,from,next){
+			next(vm => {
+				switch (from.name){
+					case 'AssPhotos':
+						if(vm.$route.params.code){
+							vm.bwlist.push({...vm.$route.params,num:1})
+						}
+					break;
+					case 'AddSparepart':
+						if(vm.$route.params.item){
+							vm.bjlist = vm.$route.params.item
+						}
+						
+					break;
+					default:
+						vm.bwlist = [];
+						vm.bjlist = [];
+					break;
+				}
+			})
+		},
+		activated(){
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
 		}

@@ -26,7 +26,6 @@
 </template>
 
 <script>
-	import '@/static/liststyle.css'
 	export default {
 		props:['listdata'],
 		data(){

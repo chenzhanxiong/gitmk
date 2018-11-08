@@ -1,5 +1,5 @@
 <template>
-	<span class="worklist-list" @click="listevent">
+	<span class="worklist-list border-bottom" @click="listevent(listdata)">
 		<span class="left-icon"><i class="iconfont" :class="listdata.icon"></i></span>
 		<div class="centent-page">
 			<p>{{listdata.name}}</p>
@@ -23,15 +23,22 @@
 					'点检':'checklist',
 					'巡检':'patrollist',
 					'日保':'dailylist',
-					'润滑':'lubricationlist'
+					'轮保':'periodlist',
+					'周保':'periodDlist',
+					'润滑':'lubricationlist',
+					'检修':'overhaullist',
+					'维修':'repairlist',
+					'预防性检查':'preventChecklist'
 				}
 			}
 		},
 		methods:{
-			listevent(){
-				this.$store.state.repairData.title = this.listdata.name + '工单';
-				this.$store.state.worklistData.worklistactiveItem = this.listdata;
-				this.$router.push('/'+ this.list[this.listdata.name]);
+			listevent(listdata){
+				this.$store.state.worklistData.isFinish = 0;
+				this.$router.push({
+					path:'/' + this.list[this.listdata.name],
+					query:{...listdata}
+				});
 			}
 		}
 	}
@@ -42,7 +49,6 @@
 		display: block;
 		width: 100%;
 		height: 1.28rem;
-		border-bottom: 0.01rem solid #dedee0;
 		padding: 0 0.2rem;
 		position: relative;
 	}
@@ -86,5 +92,8 @@
 		transform: translate(0,-50%);
 		font-size: 0.3rem;
 		color: #999;
+	}
+	.worklist-list .right-arr i{
+		font-size: 0.3rem;
 	}
 </style>

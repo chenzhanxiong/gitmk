@@ -1,56 +1,77 @@
 <template>
-	<div class="describe-box">
+	<div class="describe-box row-box">
 		<div class="describe-textarea">
-			<textarea v-model="model" placeholder="请输入异常描述"></textarea>
+			<textarea v-model="listvalue" :placeholder="textarea.placeholder"></textarea>
 		</div>
 	</div>
 	
 </template>
 
 <script>
-	import {mapMutations,mapGetters} from 'vuex';
+	import {mapState} from 'vuex'
 	export default{
 		data(){
 			let abnorData = this.$store.state.abnorData;
 			return{
-				model:abnorData.abnorReport[abnorData.parameters.parameterName],
+				isconfirm:false,
 				headData:[
 					{
 						show:true,
 						icon:'icon-fanhui',
 						event:() => {
-							this.$router.back(-1);
+							this.isconfirm = false;
+							this.$router.back(-1)
 						}
 					},
 					{
 						show:true,
 						input:false,
-						html:abnorData.parameters.name
+						html:''
 					},
 					{
 						show:true,
 						html:'保存',
 						event:() => {
-							this.$store.commit('gengxin',[abnorData.parameters.parameterName,this.model])
-							//this.$store.state.abnorReport[this.$store.state.parameters.parameterName] = this.model;
-							this.$router.back(-1);
+							this.isconfirm = true;
+							this.$route.params.list[this.$route.params.that] = this.listvalue;
+							this.$router.back(-1)
 						}
 					}
 				],
+				listvalue:this.$route.params.list[this.$route.params.that]
+			}
+		},
+		methods:{
+			preservation(){
+				this.$router.push({
+					name:this.$route.params.redirect,
+					params:{list:this.listvalue}
+				})
 			}
 		},
 		computed:{
-			...mapGetters(['getAbnorReport']),
+			...mapState({
+				textarea:state => state.abnorData.textarea
+			})
 		},
 		watch:{
-			getAbnorReport(old) {
-				this.$store.commit('judgeinfo');
-			},
+			
 		},
-		mounted(){
+		beforeRouteLeave(to,from,next){
+			to.params.list = this.$route.params.list
+			next();
+		},
+		activated(){
+			this.isconfirm =false;
+			this.headData[1].html = this.$route.params.name;
+			this.listvalue = this.$route.params.list[this.$route.params.that];
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 		}
+		
 	}
 </script>
 

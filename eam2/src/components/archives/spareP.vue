@@ -82,5 +82,6 @@
 	.archives-ul li>i.btn{
 		float: right;
 		margin-right: 0.2rem;
+		font-size:0.32rem
 	}
 </style>

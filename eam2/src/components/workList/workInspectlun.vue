@@ -1,29 +1,41 @@
 <template>
 	<div class="workInspectlun-box row-box">
-		<tablec></tablec>
-		<div class="workinspect-list">
-			<h3 class="workinspect-title">轮保设备</h3>
+		<tablec v-if="show" :listdata="listdata"></tablec>
+		<div class="textarea-box" v-if="textShow">
+			<textarea placeholder="" disabled="disabled"></textarea>
+		</div>
+		<div v-if="show" class="workinspect-list">
+			<h3 class="workinspect-title">{{$route.query.tyName}}设备</h3>
 			<ul class="workinspect-ul">
-				<li v-for="(list,i) in datalist" :key="i" @click="list.event">
+				<li class="border-bottom" v-for="(list,i) in datalist" :key="i" @click="listclick(list)">
 					<span><i class="iconfont icon-donghuanshebeiguanli"></i></span>
-					<span>{{list.name}}</span>
+					<span>{{list.equName}}</span>
 					<i class="iconfont icon-add"></i>
 				</li>
 			</ul>
 		</div>
+		<not-found v-if="!show" not="not"></not-found>
 	</div>
 </template>
 
 <script>
 	import Tablec from '@/components/assembly/tablec'
+	import notFound from '@/components/notFound'
+	import {mapState} from 'vuex'
 	export default{
-		components:{ Tablec },
+		components:{ Tablec,notFound },
+		computed:{
+			...mapState(['worklistData'])
+		},
 		data(){
 			return{
-				headData:[
+				show:false,//判断数据是否加载完成
+				textShow:false,//判断文本域是否显示
+				headData:[//title数据
 					{
 						show:true,
 						icon:'icon-fanhui',
+						close:true,
 						event:() => {
 							this.$router.back(-1);
 						}
@@ -31,97 +43,103 @@
 					{
 						show:true,
 						input:false,
-						html:'设备',
+						html:'',
 					}
 				],
-				datalist:[
-					{name:'zb48 1#',event:() =>{this.$router.push('/workInspect')}},
-					{name:'zb48 1#',event:() =>{this.$router.push('/workInspect')}},
-					{name:'zb48 1#',event:() =>{this.$router.push('/workInspect')}},
-					{name:'zb48 1#',event:() =>{this.$router.push('/workInspect')}},
-					{name:'zb48 1#',event:() =>{this.$router.push('/workInspect')}},
-				]
-				
+				datalist:[],//列表数据
+				listdata:[],//表格数据
+				items:''//总数据
 			}
 		},
-		mounted(){
+		methods:{
+			getPeriodFindDetail(){//获取数据
+				this.show = false;
+				this.$store.commit('showLoading')
+				this.$axios.get(this.$root.URL+'eom/api/turn/detail',{
+					params:{
+						id:this.$route.query.id,
+					}
+				}).then((res) => {
+					this.show = true;
+					this.$store.commit('hideLoading')
+					let d = res.data;
+					if(!d.result){
+						this.items = d.obj;
+						this.listdata = this.tablecdata(d.obj);
+						this.datalist = d.obj.equNames;
+						if(d.obj.ywNm == '周保' || d.obj.ywNm == '检修'){
+							this.textShow = true;
+						}
+					}
+				})
+			},
+			tablecdata(d){//整理表格数据
+				let type = d.isFinish == "0"?false:true;//判断是否完成
+				if(!type){
+					return [
+						{name:'计划日期',value:d.pDate},
+						{name:'延期日期',value:d.delayDate || '未延期'},	
+						{name:'计划开始时间',value:d.pStartTime},	
+						{name:'计划结束时间',value:d.pEndTime},	
+						{name:'工单状态',value:d.woState},	
+						{name:'下发时间',value:d.woIssuedTime},	
+						{name:'负责人',value:d.pManagerName},	
+						{name:'参与人',value:d.userNames},
+					]
+				}else{
+					return [
+						{name:'计划日期',value:d.pDate},
+						{name:'延期日期',value:d.delayDate || '未延期'},	
+						{name:'计划开始时间',value:d.pStartTime},	
+						{name:'计划结束时间',value:d.pEndTime},	
+						{name:'工单状态',value:d.woState},	
+						{name:'下发时间',value:d.woIssuedTime},	
+						{name:'负责人',value:d.pManagerName},	
+						{name:'参与人',value:d.userNames},
+						{name:'实际开始时间',value:d.startTime},
+						{name:'实际结束时间',value:d.endTime},
+					]
+				}
+				
+			},
+			listclick(list){//判断工单类型跳转子页面
+				if(this.$route.query.tyName == '轮保'){
+					this.$router.push({
+						path:'/workHandle4',
+						query:{...list}
+					})
+				}
+				if(this.$route.query.tyName == '周保'){
+					this.$router.push({
+						path:'/workHandle5',
+						query:{...list}
+					})
+				}
+				if(this.$route.query.tyName == '检修'){
+					this.$router.push({
+						path:'/workHandle7',
+						query:{...list}
+					})
+				}
+			}
+		},
+		
+		activated(){
+			this.headData[1].html = this.$route.query.name;//修改title
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
+			if(!this.$route.meta.isUseCache || this.items == ''){
+				this.getPeriodFindDetail();
+				this.textShow = false;
+				this.footShow = false;
+			}
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 		}
 	}
 </script>
 
 <style>
-	.workInspectlun-box{
-		width: 100%;
-	}
-	.workinspect-list{
-		width: 100%;
-	}
-	.workinspect-title{
-		width: 100%;
-		line-height: 0.6rem;
-		height: 0.6rem;
-		background: #f5f5f5;
-		font-weight: normal;
-		color: #999;
-		padding: 0 0.4rem;
-	}
-	.workinspect-ul{
-		width: 100%;
-		padding: 0 0.2rem;
-	}
-	.workinspect-ul li{
-		height: 1.3rem;
-		width: 100%;
-		padding: 0 0.2rem;
-		overflow: hidden;
-		border-bottom: 0.01rem solid #dedede;
-	}
-	.workinspect-ul li:before{
-		content: '';
-		width: 0;
-		height: 100%;
-		display: inline-block;
-		vertical-align: middle;
-	}
-	.workinspect-ul li>span:first-child{
-		width: 0.86rem;
-		height: 0.86rem;
-		display: inline-block;
-		vertical-align: middle;
-		text-align: center;
-		border-radius: 50%;
-		margin-right: 0.2rem;
-		background: #00B393;
-	}
-	.workinspect-ul li>span:first-child:before{
-		content: '';
-		display: inline-block;
-		width: 0;
-		height: 100%;
-		vertical-align: middle;
-	}
-	.workinspect-ul li>span:first-child>i{
-		display: inline-block;
-		color: #fff;
-		vertical-align: middle;
-		font-size: 0.48rem;
-	}
-	.workinspect-ul li>span:nth-child(2){
-		display: inline-block;
-		width: 4.5rem;
-		font-size: 0.26rem;
-		vertical-align: middle;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.workinspect-ul li>i{
-		float: right;
-		display: inline-block;
-		font-size: 0.4rem;
-		color: #00B393;
-		line-height: 1.3rem;
-	}
+	
 </style>

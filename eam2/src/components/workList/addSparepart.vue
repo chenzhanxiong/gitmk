@@ -1,26 +1,44 @@
 <template>
-	<div class="addspare-box row-box">
+	<div class="addspare-box">
 		<div class="list-model" style="position: relative;">
 			<div class="ass-input-box">
 				<i class="logo iconfont icon-sousuo"></i>
-				<input type="text" name="" id="" v-model="searchl" placeholder="请输入关键字搜索" />
-				<i class="btn iconfont icon-guanbi" v-if="searchl != ''" @click="searchl = ''"></i>
+				<input type="text" v-model="searchl" placeholder="请输入关键字搜索" @input="inputclick"/>
+				<i class="btn iconfont icon-guanbi" v-if="searchl != ''" @click="searchl = '',inputclick()"></i>
 			</div>
 			<span class="scan-btn"><i class="iconfont icon-saomiao"></i></span>
 		</div>
-		<div>
-			<routine-list v-for="(list,i) in listdata" :key="'a'+i" :listdata="list"></routine-list>
+		<div class="addSp-list">
+			<mt-loadmore v-show="listdata.length > 0" :bottom-method="loadbottom" :bottom-all-loaded="allLoaded" :auto-fill="autofill" ref="loadmore">
+				<routine-list v-if="listdata.length > 0" v-for="(list,i) in listdata" :key="i" :name="list.text" check="true" :value="list.type" @event="list.type = !list.type"></routine-list>
+			</mt-loadmore>
+			<div class="baseline" v-if="allLoaded">我是有底线的</div>
+			<not-found v-if="listdata.length <= 0" not="not"></not-found>
 		</div>
 	</div>
 	
 </template>
 
 <script>
+	const delay = (function() {
+	let timer = 0;
+	return function(callback, ms) {
+		clearTimeout(timer);
+		timer = setTimeout(callback, ms);
+	};
+	})();
 	import RoutineList from '@/components/assembly/routineList'
+	import notFound from '@/components/notFound'
 	export default{
-		components:{ RoutineList },
+		components:{ RoutineList,notFound },
 		data(){
 			return{
+				searchl:'',
+				pageIndex:1,
+				isconfirm:false,
+				autofill:false,
+				allLoaded:false,
+				close:true,
 				headData:[
 					{
 						show:true,
@@ -36,112 +54,100 @@
 					},
 					{
 						show:true,
-						html:'保存'
+						html:'保存',
+						event:() => {
+							this.isconfirm = true;
+							this.$router.back(-1);
+						}
 					}
 				],
-				listactive:'',
-				listdata:[
-					{
-						name:'备件名称1',
-						check:true,
-						porp:true,
-						event:(list) => {
-							this.clickacitve(list)
-						}
-					},
-					{
-						name:'备件名称2',
-						check:true,
-						porp:false,
-						event:(list) => {
-							this.clickacitve(list)
-						}
-					},
-					{
-						name:'备件名称3',
-						check:true,
-						porp:false,
-						event:(list) => {
-							this.clickacitve(list)
-						}
-					},
-					{
-						name:'备件名称4',
-						check:true,
-						porp:false,
-						event:(list) => {
-							this.clickacitve(list)
-						}
-					},
-				]
+				listactive:[],
+				listdata:[]
 			}
 		},
 		methods:{
-			clickacitve(list){
-				this.listactive = list.name;
-				this.listdata.forEach((e) => {
-					if(this.listactive == e.name){
-						e.porp = true
-					}else{
-						e.porp = false;
+			getfindPosition(type){//获得换件信息的--备件库
+				if(type){this.pageIndex = 1;this.allLoaded = false;};
+				this.$store.commit('showLoading')
+				this.$axios.get(this.$root.URL+'eom/api/common/list',{
+					params:{
+						params:{
+							query:{
+								equName:this.searchl
+							},
+							pager:{
+								pageIndex:this.pageIndex,
+								pageSize:20
+							}
+						}
+					}
+					
+				}).then(res => {
+					this.$store.commit('hideLoading')
+					let d = res.data;
+					if(!type){
+						this.$refs.loadmore.onBottomLoaded();
+					}
+					if(!d.result){
+						if(this.pageIndex >= d.totalPages && !type){
+							this.allLoaded = true;
+						}
+						this.pageIndex ++;
+						if(type){
+							this.listdata = [];
+						};
+						d.item.forEach((e) => {
+							e.type = false;
+							if(!e.num){
+								e.num = 1;
+							}
+							if(this.$route.query.item){
+								this.$route.query.item.forEach(item => {
+									if(e.code == item.code){
+										e.type = true;
+										e.num = item.num
+										return;
+									}
+								})
+							}
+						})
+						this.listdata = this.listdata.concat(d.item);
 					}
 				})
-				
+			},
+			loadbottom(){//下拉加载
+				this.getfindPosition(false);
+			},
+			inputclick(){
+				delay(() => {
+					this.getfindPosition(true)
+				},300)
 			}
 		},
-		mounted(){
+		beforeRouteLeave(to,from,next){
+			if(this.isconfirm){
+				this.listdata.forEach(e => {
+					if(e.type){
+						this.listactive.push(e)
+					}
+				})
+				to.params.item = this.listactive
+			}
+			next();
+		},
+		activated(){
+			this.isconfirm = false;
+			this.listactive = [];
+			this.getfindPosition(true);
 			this.$store.state.heads.show = true;
 			this.$store.state.heads.headData = this.headData;
+			mui.back = function(){
+				history.go(-1)//回退到上一页面
+			}
 		}
 	}
 </script>
 
 <style>
-	.ass-input-box{
-		width: 5.5rem;
-		margin-left: 0.4rem;
-		position: relative;
-		border: 0.01rem solid #999;
-		border-radius: 0.1rem;
-	}
-	.ass-input-box input{
-		width: 100%;
-		height: 0.6rem;
-		font-size: 0.26rem;
-		color: #666;
-		background: none;
-		border: none;
-		outline: none;
-		padding: 0 0.66rem;
-	}
-	.ass-input-box .logo{
-		position: absolute;
-		left: 0.2rem;
-		top: 50%;
-		transform: translate(0,-50%);
-		font-size: 0.3rem;
-		color: #999;
-	}
-	.ass-input-box .btn{
-		position: absolute;
-		right: 0.2rem;
-		top: 50%;
-		transform: translate(0,-50%);
-		font-size: 0.3rem;
-		color: #999;
-	}
-	.ass-input-box input::-webkit-input-placeholder{
-		color: #999;
-	}
-	.scan-btn{
-		position: absolute;
-		right: 0.4rem;
-		top: 50%;
-		transform: translate(0,-50%);
-	}
-	.scan-btn i{
-		font-size: 0.44rem;
-		color: #00B294;
-	}
-
+	
 </style>

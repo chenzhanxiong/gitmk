@@ -1,47 +1,42 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
+
 Vue.use(Vuex)
 
 const abnorData = {//异常上报
 	state:{
-		parameters:'',
-	    thatclick:'',
-	    submitType:true,
-	    abnorReport:{//异常上报
-			name:'',
-			position:'',
-			major:'',
-			abdes:'',
-			code:'',
-			phenomenon:'',
-			level:'',
-			solve:'',
-			handledes:''
-	    },
-		popupVisible:false,
-		popuplist:{
-			active:'',list:''
+		parameters:{},
+		listvalue:{
+			repairSourceId:'',
+			equKeyId:'',
+			equCode:'',
+			equName:'',
+			postionId:'',
+			positionCode:'',
+			positionName:'',
+			majorId:'',
+			strFaultTime:'',
+			abnormalTxt:'',
+			faultCode:'',
+			failureTxt:'',
+			reportLevelId:'',
+			//aResult:'0',
+			strStartTime:'',
+			strEndTime:'',
+			aProcedureTxt:''
 		},
-	},
-	getters:{
-	  	getAbnorReport:state => {
-	  		return state.abnorReport[state.parameters.parameterName];
-	  	}
+		textareaShow:false,
+		textarea:{
+			title:'异常描述',
+			item:'',
+			placeholder:'请输入异常描述'
+		}
 	},
 	mutations:{
-	  	gengxin:(state,val) => {
-	  		state.abnorReport[val[0]] = val[1];
-	  	},
-	  	judgeinfo:(state) =>{
-			Object.keys(state.abnorReport).forEach((e,i) => {
-				if(state.abnorReport[e] == "" || state.abnorReport[e] == null && e != 'phenomenon' && e != 'code'){
-					state.submitType = true;
-					return false;
-				}else{
-					state.submitType = false;
-				}
-			})
-		}
+		textareaShow(state){
+			state.textareaShow = !state.textareaShow;    
+		},
 	}
 }
 
@@ -94,18 +89,34 @@ const archivesData = {//档案
 const worklistData = {//工单
 	state:{
 		worklistactiveItem:'',//点击工单列表的数据
-		worklistHandle:'',//工单处理数据
+		worklisteQuKeyItem:'',//点击的设备数据
+		workstartDate:'',
+		worklistHandle:'',//工单处理数据||保养
+		worklistHandle1:'',//工单处理数据（维修）
+		repairDetails:'',//维修详情数据
 		num:0,//工单处理页数
+		isFinish:0,//是否完成
 		worklistHandleData1:{//工单处理整理数据
-			tablec:[],
+			tablec:null,
 			inspection:{
-				arr:[],
-				realRead:{},
-				exeResult:{},
+				arr:null,
+				realRead:null,
+				exeResult:null,
 			},
-			title:'',
-			total:'',
-			page:''
+			title:null,
+			total:null,
+			page:1
+		},
+		worklistHandleData2:{//工单处理整理数据
+			tablec:null,
+			inspection:{
+				arr:null,
+				realRead:null,
+				exeResult:null,
+			},
+			title:null,
+			total:null,
+			page:1
 		}
 	},
 	getters:{
@@ -114,33 +125,47 @@ const worklistData = {//工单
 }
 
 export default new Vuex.Store({
-  	state:{
-  		token:'',
-  		LOADING:false,
-    		title:'EAM<sup>2</sup>设备运维助手',
-    		heads:{
-    			show:'statesShow',
-    			headData:[],
-    		},
-    		imgSrc:'/static/img/homebg.1afc654.png',
-    		picValue:'',
-  	},
-  	mutations:{
-  		set_token(state, token) {
-			state.token = token
-			sessionStorage.token = token
+	state:{
+		token:'',
+		devHost:'http://192.168.1.171',
+		loginPort:'8021',
+		photoPort:'8021',
+		serPort:'8021',
+		devUrl:'',
+		LOADING:false,
+		title:'EAM<sup>2</sup>设备运维助手',
+		heads:{
+			show:'statesShow',
+			headData:[],
+		},
+		imgSrc:'',
+		picValue:'',
+		screenlist:[],
+		screenActive:[],
+		imgBindId:{},
+		abnImgId:[]
+	},
+	mutations:{
+		set_token(state, value) {
+			let token = JSON.parse(value);
+			state.token = token.token;
+			localStorage.setItem('EAMTOKEN',value);
 		},
 		del_token(state) {
 			state.token = ''
-			sessionStorage.removeItem('token')
+			localStorage.removeItem('EAMTOKEN')
 		},
 		showLoading(state){
-            state.LOADING = true    
-        },
-        hideLoading (state) {
-            state.LOADING = false
-        }
-  	},
+				state.LOADING = true    
+		},
+		hideLoading (state) {
+				state.LOADING = false
+		},
+		emptyPhoto(state){//清空照片
+			state.listImage = [];
+		},
+	
+	},
 	modules:{
 		abnorData:abnorData,
 		repairData:repairData,
